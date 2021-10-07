@@ -1,0 +1,7 @@
+#!/bin/sh
+for file in *.ts; do 
+  echo "file '$file'" >> file.lst 
+done;
+
+ffmpeg -f concat -i file.lst -c copy $1 -y || exit 1
+rm file.lst
