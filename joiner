@@ -1,4 +1,5 @@
 #!/bin/sh
+rm file.lst
 for file in *.ts; do 
   echo "file '$file'" >> file.lst 
 done;
