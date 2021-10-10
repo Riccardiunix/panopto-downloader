@@ -1,8 +1,8 @@
 #!/bin/sh
 rm *.ts
 for i in $(seq 0 3 10000); do
-	echo $(wget $1$(printf "%05d" $i).ts -q & echo "downloading $(printf "%05d" $i).ts")
-	& echo $(wget $1$(printf "%05d" $((i+1))).ts -q & echo "downloading $(printf "%05d" $((i+1))).ts")
-	& echo $(wget $1$(printf "%05d" $((i+2))).ts -q & echo "downloading $(printf "%05d" $((i+2))).ts") 
-	|| exit 0
+	wget $1$(printf "%05d" $i).ts -q &
+	wget $1$(printf "%05d" $((i+1))).ts -q &
+	wget $1$(printf "%05d" $((i+2))).ts -q ||
+	exit 0
 done
