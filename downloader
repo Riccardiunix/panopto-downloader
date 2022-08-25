@@ -1,8 +1,3 @@
 #!/bin/sh
 rm *.ts
-for i in $(seq 0 3 10000); do
-	wget $1$(printf "%05d" $i).ts -q &
-	wget $1$(printf "%05d" $((i+1))).ts -q &
-	wget $1$(printf "%05d" $((i+2))).ts -q ||
-	exit 0
-done
+seq -f "%05g" 1000 | parallel -j4 --halt 1 wget "$1"{}.ts -q || exit 0

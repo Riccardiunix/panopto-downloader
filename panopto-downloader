@@ -1,3 +1,4 @@
 #!/bin/sh
-./downloader "$1" || exit 1
-./joiner "$2" || exit 1
+OUT=$(python pano.py) || exit 1
+echo $OUT
+./$OUT
