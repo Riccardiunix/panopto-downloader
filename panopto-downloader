@@ -1,4 +1,3 @@
 #!/bin/sh
-OUT=$(python pano.py) || exit 1
-echo $OUT
-./$OUT
+python panopto_sub.py || exit 1
+sh output.sh
