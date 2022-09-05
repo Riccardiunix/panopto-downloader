@@ -26,11 +26,13 @@ try:
         driver.add_cookie(cookie)
 except Exception:
     #-- Login (Username + Pass)
+    login = open("login", "r")
     driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Auth/Login.aspx?instance=AAP-Univr")
     WebDriverWait(driver, 30).until( EC.presence_of_element_located((By.ID, "form_username")) )
-    driver.find_element("id", "form_username").send_keys("")
-    driver.find_element("id", "form_password").send_keys("")
-    driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button/span[2]").submit()
+    driver.find_element("id", "form_username").send_keys(login.readline())
+    driver.find_element("id", "form_password").send_keys(login.readline())
+    driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button").click()
+    time.sleep(1)
 
 #-- Pagina "Subscriptions"
 driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#isSubscriptionsPage=true")

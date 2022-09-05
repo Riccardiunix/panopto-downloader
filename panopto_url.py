@@ -12,7 +12,7 @@ if len(sys.argv) == 1:
     print("Aggiungi almeno una URL del video che vuoi scaricare")
 
 options = Options()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 #options.add_argument('--no-sandbox')
 #options.add_argument('--ignore-certificate-errors-spki-list')
 #options.add_argument('--ignore-ssl-errors')
@@ -30,11 +30,20 @@ try:
         driver.add_cookie(cookie)
 except Exception:
     #-- Login (Username + Pass)
+    try:
+        login = open("login", "r")
+    except Exception:
+        print("Create un file 'login' con all'interno su una riga l'ID e su un'altra la password del vostro account")
+        exit(1)
     driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Auth/Login.aspx?instance=AAP-Univr")
     WebDriverWait(driver, 30).until( EC.presence_of_element_located((By.ID, "form_username")) )
-    driver.find_element("id", "form_username").send_keys("")
-    driver.find_element("id", "form_password").send_keys("")
-    driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button/span[2]").submit()
+    driver.find_element("id", "form_username").send_keys(login.readline())
+    driver.find_element("id", "form_password").send_keys(login.readline())
+    driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button").click()
+    time.sleep(1)
+
+# Salvo i cookie
+pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
 
 output_file = open("output.sh", "w")
 for url in sys.argv[1:]:
