@@ -12,7 +12,7 @@ options.add_argument('--headless')
 #options.add_argument('--no-sandbox')
 #options.add_argument('--ignore-certificate-errors-spki-list')
 #options.add_argument('--ignore-ssl-errors')
-options.ignore_http_methods = [] # Capture all requests, including OPTIONS requests
+#options.ignore_http_methods = [] # Capture all requests, including OPTIONS requests
 options.page_load_strategy = 'eager' # non aspetto che venga caricata tutta la pagina ma solo che diventi iterativa (DOM caricato)
 options.set_preference("media.volume_scale", "0.0") # muto l'audio
 
@@ -26,7 +26,11 @@ try:
         driver.add_cookie(cookie)
 except Exception:
     #-- Login (Username + Pass)
-    login = open("login", "r")
+    try:
+        login = open("login", "r")
+    except Exception:
+        print("Create un file 'login' con all'interno su una riga l'ID e su un'altra la password del vostro account")
+        exit(1)
     driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Auth/Login.aspx?instance=AAP-Univr")
     WebDriverWait(driver, 30).until( EC.presence_of_element_located((By.ID, "form_username")) )
     driver.find_element("id", "form_username").send_keys(login.readline())
@@ -50,10 +54,11 @@ for video_id in range(1, 25):
     list_videos.append(video_url.get_attribute('href'))
 
 output_file = open("output.sh", "w")
-for url in list_videos:
+error_url = open("error_url", "w")
+for video_url in list_videos:
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
     try:
-        driver.get(url)
+        driver.get(video_url)
     except:
         continue
     
@@ -113,10 +118,14 @@ for url in list_videos:
     elif len_set == 2:
         output = 'pdown2 {} {} "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
     else:
-        output = 'touch "{}"\n'.format(lec_name)
+		error_url.write(video_url+'\n')
+		output = ''
+		for request in driver.requests:
+			print(request.url)
 
     #-- Output del programma
     output_file.write(output)
 
 driver.quit()
 output_file.close()
+error_url.close()

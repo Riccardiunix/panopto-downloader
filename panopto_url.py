@@ -16,7 +16,7 @@ options = Options()
 #options.add_argument('--no-sandbox')
 #options.add_argument('--ignore-certificate-errors-spki-list')
 #options.add_argument('--ignore-ssl-errors')
-options.ignore_http_methods = [] # Capture all requests, including OPTIONS requests
+#options.ignore_http_methods = [] # Capture all requests, including OPTIONS requests
 options.page_load_strategy = 'eager' # non aspetto che venga caricata tutta la pagina ma solo che diventi iterativa (DOM caricato)
 options.set_preference("media.volume_scale", "0.0") # muto l'audio
 
@@ -42,14 +42,15 @@ except Exception:
     driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button").click()
     time.sleep(1)
 
-# Salvo i cookie
+#-- Salvo i cookie
 pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
 
 output_file = open("output.sh", "w")
-for url in sys.argv[1:]:
+error_url = open("error_url", "w")
+for video_url in sys.argv[1:]:
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
     try:
-        driver.get(url)
+        driver.get(video_url)
     except:
         continue
     
@@ -109,10 +110,14 @@ for url in sys.argv[1:]:
     elif len_set == 2:
         output = 'pdown2 {} {} "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
     else:
-        output = 'touch "{}"\n'.format(lec_name)
+        error_url.write(video_url+'\n')
+        output = ''
+        for request in driver.requests:
+            print(request.url)
 
     #-- Output del programma
     output_file.write(output)
 
 driver.quit()
 output_file.close()
+error_url.close()
