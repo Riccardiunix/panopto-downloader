@@ -1,10 +1,4 @@
 #!/bin/bash
-if [[ "$1" != http*/ ]] | [[ "$1" != http*.mp4 ]]; then
-	echo "Errore URL audio"; exit 1
-elif [[ "$2" != http*/ ]] | [[ "$2" != http*.mp4 ]]; then
-	echo "Errore URL video"; exit 1
-fi
-
 mkdir "$3"_w || exit 1
 cd "$3"_w || exit 1
 
@@ -15,4 +9,4 @@ pdown "$2" video.mp4 || exit 1
 echo 'Start joining audio.mp4 & video.mp4'
 ffmpeg -hwaccel auto -hide_banner -loglevel warning -i video.mp4 -i audio.mp4 -c copy "$3" || exit 1
 mv -f "$3" ..
-#rm -rf ../"$3"_w
+rm -rf ../"$3"_w
