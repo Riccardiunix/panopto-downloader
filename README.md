@@ -42,18 +42,32 @@ Esempio:
 
 ## Utilizzo
 
-Scaricherà i primi 500 video dalla pagina "Subscription" del tuo account
+Ogni script python (`.py`) genererà un file `output.sh` con i comandi per scaricare i video trovati e un file `error_url` dove sono indicati i video di cui non sono stati trovati stream audio/video. Una volta concluso il `.py` si può procedere ad eseguire il `output.sh` che scaricherà le lezioni.
 
-	./panopto-downloader
+I file python sono di 3 tipi:
 
-Per scaricare video singoli si può usare il comando il comando:
+- **panopto_cor.py**: richiede come parametro la URL di un corso e scaricherà i primi `num_videos`(500) di quel corso
+- **panopto_sub.py**: scarica i primi `num_videos`(500) dalla pagina "Subscriptions"
+- **panopto_url.py**: richiede come paramento almeno una URL di un video che verrà poi scaricato.
 
-	python panopto_url.py "URL"
+### Esempi
+Analizzare un corso:
 
-e al termine di questo eseguire:
+	panopto_cor.py 'URL del corso'
 
+Analizzare dalla pagina "Subscriptions"
+
+	panopto_sub.py
+
+Analizzare video da URL
+	
+	panopto_url.py "URL1" "URL2" ... "URLn"
+
+Scaricare le lezione analizzate dagli script python:
+	
 	sh output.sh
 
-Nel formatto compatto:
+### Note
+Per scaricare tutti i video di un corso o dalla pagina "Subscriptions" e' possibile settare `num_videos` a un valore molto alto (500-1000).
 
-	python panopto_url.py "URL";sh output.sh
+Una volta concluso lo script `.py` e necessario eseguire `output.sh` per eseguire effettivamente il download delle lezioni.

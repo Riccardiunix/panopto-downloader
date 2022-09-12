@@ -3,3 +3,4 @@ geckodriver.log
 output.sh
 login
 error_url
+__pycache__
