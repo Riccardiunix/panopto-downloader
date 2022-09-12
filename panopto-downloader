@@ -1,3 +1,4 @@
 #!/bin/sh
 python panopto_sub.py || exit 1
+rm geckodriver.log 
 sh output.sh
