@@ -2,7 +2,7 @@
 if [[ "$1" == */ ]]; then # se termina per / e' un flusso .ts
     echo "Downloading '$2'"
     #-- Creo la cartella di lavoro e poi mi sposto dentro
-	mkdir "$2"_w || exit 1
+	mkdir -p "$2"_w
 	cd "$2"_w || exit 1
 	
 	#-- Scarico tutti .ts e poi li unisco

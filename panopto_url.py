@@ -8,9 +8,6 @@ if len(sys.argv) == 1:
 #-- Login
 driver = utils.get_driver()
 
-#-- Salvo i cookie
-#pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
-
 #-- Analizzo i link delle lezione per estrarre gli stream
 utils.get_links_video(driver, sys.argv[1:])
 

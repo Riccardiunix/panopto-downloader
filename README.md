@@ -38,7 +38,7 @@ Per il primo utilizzo creare una file "login" con all'interno una linea per l'ID
 Esempio:
 
 	ID007MIT
-	NicePassowrdBro
+	NicePasswordBro
 
 ## Utilizzo
 

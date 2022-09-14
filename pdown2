@@ -3,13 +3,13 @@
 echo "    Downloading '$3'"
 
 #-- Creo la cartella di lavoro e poi mi sposto dentro
-mkdir "$3"_w || exit 1
+mkdir -p "$3"_w
 cd "$3"_w || exit 1
 
 #-- Scarico il flusso audio (webcam)
 pdown "$1" webcam.mp4 || exit 1
 
-#-- Scarido il flusso video (schermo)
+#-- Scarico il flusso video (schermo)
 pdown "$2" screen.mp4 || exit 1
 
 echo "Unisco webcam.mp4 & screen.mp4 di '$3'"

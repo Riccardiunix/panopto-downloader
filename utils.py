@@ -131,16 +131,16 @@ def get_video_stream(video_url, driver):
         print("2 flussi trovati [ok]")
         output = 'pdown2 {} {} "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
     else:
-        print("{} flussi trovati [x]")
+        print("{} flussi trovati [x]".format(len_set))
         error = '{} {}\n'.format(video_url, lec_name)
     return (output, error)
 
-def get_lesson_links(driver, num_videos):
+def get_lesson_links(driver, num_videos, n_div):
     print("Raccolta link delle lezioni", end="", flush=True)
     list_videos = []
     try:
         for video_id in range(1, num_videos):
-            video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/a".format(video_id))
+            video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[{}]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/a".format(n_div, video_id))
             list_videos.append(video_url.get_attribute('href'))
     except:
         pass
