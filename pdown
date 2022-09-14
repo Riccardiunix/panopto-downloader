@@ -1,17 +1,19 @@
 #!/bin/bash
-if [[ "$1" != http* ]]; then
-	echo "Errore URL"; exit 1
-fi
-
-if [[ "$1" == */ ]]; then
+if [[ "$1" == */ ]]; then # se termina per / e' un flusso .ts
+    echo "Downloading '$2'"
+    #-- Creo la cartella di lavoro e poi mi sposto dentro
 	mkdir "$2"_w || exit 1
 	cd "$2"_w || exit 1
+	
+	#-- Scarico tutti .ts e poi li unisco
 	downloader "$1" || exit 1
 	joiner "$2" || exit 1
+
+	#-- Sposto il file ottentuto fuori e cancello la cartella di lavoro
 	mv -f "$2" ..
 	rm -rf ../"$2"_w
-elif [[ "$1" == *.mp4 ]]; then
-	wget -q --show-progress "$1" -O "$2" || exit 1
-else
-	echo "URL non supportata"; exit 1
+	exit
 fi
+
+# se e' un file .mp4 posso scaricarlo con wget
+wget -q --show-progress "$1" -O "$2" || exit 1

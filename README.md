@@ -51,6 +51,7 @@ I file python sono di 3 tipi:
 - **panopto_url.py**: richiede come paramento almeno una URL di un video che verrà poi scaricato.
 
 ### Esempi
+
 Analizzare un corso:
 
 	panopto_cor.py 'URL del corso'
@@ -67,7 +68,16 @@ Scaricare le lezione analizzate dagli script python:
 	
 	sh output.sh
 
-### Note
+## Note
+
 Per scaricare tutti i video di un corso o dalla pagina "Subscriptions" e' possibile settare `num_videos` a un valore molto alto (500-1000).
 
 Una volta concluso lo script `.py` e necessario eseguire `output.sh` per eseguire effettivamente il download delle lezioni.
+
+L'output della esecuzione di `output.sh` presenta dei problemi di visualizzazione dovuto al programma `parallel` quando si scaricano flussi `.ts`, tuttavia non pregiudica il funzionamento del programma. Mostra righe di questo tipo:
+
+	parallel: This job failed:
+	wget URL/xxxxx.ts -q
+	parallel: Starting no more jobs. Waiting for 3 jobs to finish.
+
+Questo output e' atteso e sta a significare che ha scaricato gli ultimi file del flusso e che deve attendere il completamento di altri.

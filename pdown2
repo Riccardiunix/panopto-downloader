@@ -1,12 +1,20 @@
 #!/bin/bash
+# Scarico due flussi video e audio e poi li unisco
+echo "    Downloading '$3'"
+
+#-- Creo la cartella di lavoro e poi mi sposto dentro
 mkdir "$3"_w || exit 1
 cd "$3"_w || exit 1
 
-pdown "$1" audio.mp4 || exit 1
+#-- Scarico il flusso audio (webcam)
+pdown "$1" webcam.mp4 || exit 1
 
-pdown "$2" video.mp4 || exit 1
+#-- Scarido il flusso video (schermo)
+pdown "$2" screen.mp4 || exit 1
 
-echo 'Start joining audio.mp4 & video.mp4'
-ffmpeg -hwaccel auto -hide_banner -loglevel warning -i video.mp4 -i audio.mp4 -c copy "$3" || exit 1
+echo "Unisco webcam.mp4 & screen.mp4 di '$3'"
+ffmpeg -hwaccel auto -hide_banner -loglevel warning -i screen.mp4 -i webcam.mp4 -c copy "$3" || exit 1
+
+#-- Sposto il file ottentuto fuori e cancello la cartella di lavoro
 mv -f "$3" ..
 rm -rf ../"$3"_w

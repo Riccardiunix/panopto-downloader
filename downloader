@@ -1,3 +1,4 @@
-#!/bin/sh
-rm *.ts
-seq -f "%05g" 1000 | parallel -j4 --halt 1 wget "$1"{}.ts -q || exit 0
+#!/bin/bash
+# Programma responsabile del downlaod dei file .ts
+#-- Genero una sequenza lunga 1000 nel formatto 00001 (seq) e poi con paralellizio (parallel) il downlaod (wget) dei file .ts aventi come nome i valori della sequenza 
+seq -f "%05g" 1000 | parallel -j+0 --bar --halt 1 wget "$1"{}.ts -q || exit 0

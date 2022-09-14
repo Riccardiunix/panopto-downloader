@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.options import Options
 
 def get_driver():
+    print("Login",end="", flush=True)
     options = Options()
     options.add_argument('--headless')
     #options.add_argument('--no-sandbox')
@@ -36,14 +37,16 @@ def get_driver():
         driver.find_element("id", "form_password").send_keys(login.readline())
         driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button").click()
         time.sleep(1)
-
+        #-- Salvo i cookie
+        pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
+    print(" [ok]")
     return driver
 
 def get_video_stream(video_url, driver):
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
     try:
         driver.get(video_url)
-        print("Esaminando: {}".format(video_url))
+        print("\nEsaminando: {}".format(video_url))
     except:
         return ([], '')
     
@@ -122,10 +125,37 @@ def get_video_stream(video_url, driver):
     output = ''
     error = ''
     if len_set == 1:
+        print("1 flusso trovato [ok]")
         output = 'pdown {} "{}.mp4"\n'.format(list_urls[0], lec_name)
     elif len_set == 2:
+        print("2 flussi trovati [ok]")
         output = 'pdown2 {} {} "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
     else:
+        print("{} flussi trovati [x]")
         error = '{} {}\n'.format(video_url, lec_name)
-    print('')
     return (output, error)
+
+def get_lesson_links(driver, num_videos):
+    print("Raccolta link delle lezioni", end="", flush=True)
+    list_videos = []
+    try:
+        for video_id in range(1, num_videos):
+            video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/a".format(video_id))
+            list_videos.append(video_url.get_attribute('href'))
+    except:
+        pass
+    print(" [ok]")
+    return list_videos
+
+def get_links_video(driver, list_videos):
+    output_file = open("output.sh", "w")
+    error_url = open("error_url", "w")
+    for video_url in list_videos:
+        #-- prendo gli stream audio/video
+        output, error = get_video_stream(video_url, driver)
+        
+        #-- Output del programma
+        output_file.write(output)
+        error_url.write(error)
+    output_file.close()
+    error_url.close()

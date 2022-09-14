@@ -1,8 +1,10 @@
 #!/bin/sh
-rm file.lst
+# Si occupa di unire i file .ts in un unico file
+#-- Genero il file.lst dove dentro ho in ordine i nomi dei file .ts scaricati da 'downloader'
 for file in *.ts; do 
 	echo "file '$file'" >> file.lst 
 done;
 
+#-- Unisco i file .ts presenti nel file.lst in un inico file
 ffmpeg -hwaccel auto -hide_banner -loglevel warning -f concat -i file.lst -c copy "$1" -y || exit 1
 rm file.lst

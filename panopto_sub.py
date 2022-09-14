@@ -1,43 +1,25 @@
 import pickle
-import time
 import utils
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+num_videos = 500
 
-#-- get driver da utils.py
+#-- Login
 driver = utils.get_driver()
 
-num_videos = 25
-
-#-- Pagina "Subscriptions"
+#-- Accedo alla pagina "Subscriptions" e aspetto il suo caricamento
+print("Carico pagina 'Subscriptions'", end="", flush=True)
 driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#isSubscriptionsPage=true&maxResults={}".format(num_videos))
-
-#-- Aspetto il caricamento della pagina
 WebDriverWait(driver, 30).until( EC.presence_of_element_located(("xpath", "/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")) )
+print(" [ok]")
 
 #-- Salvo i cookie
-pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
+#pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
 
-#-- Click video_id link nella pagina
-list_videos = []
-try:
-    for video_id in range(1, num_videos):
-        video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/a".format(video_id))
-        list_videos.append(video_url.get_attribute('href'))
-except:
-    pass
+#-- Prendo i link dei video delle lezioni nella pagina
+list_videos = utils.get_lesson_links(driver, num_videos)
 
-output_file = open("output.sh", "w")
-error_url = open("error_url", "w")
-for video_url in list_videos:
-    #-- prendo i stream video
-    output, error = utils.get_video_stream(video_url, driver)
-    
-    #-- Output del programma
-    output_file.write(output)
-    error_url.write(error)
+#-- Analizzo i link delle lezione per estrarre gli stream
+utils.get_links_video(driver, list_videos)
 
 driver.quit()
-output_file.close()
-error_url.close()
