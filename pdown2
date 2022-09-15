@@ -1,7 +1,7 @@
 #!/bin/bash
 # Scarico due flussi video e audio e poi li unisco
 if test -f "$3"; then
-    echo "    '$3' file gia' scaricato"
+    echo "    '$3' file già scaricato"
 	exit 1
 fi
 

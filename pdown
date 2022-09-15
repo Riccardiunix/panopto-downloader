@@ -1,7 +1,7 @@
 #!/bin/bash
 # Controllo che il file che sto andando a scaricare non sia un file di flusso
 if [[ "$2" != "webcam.mp4" ]] && [[ "$2" != "screen.mp4" ]] && test -f "$2"; then
-    echo "    '$2' file gia' scaricato"
+    echo "    '$2' file già scaricato"
 	exit 1
 fi
 

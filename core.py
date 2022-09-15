@@ -137,10 +137,10 @@ def get_lesson_links(driver, num_videos, url):
     print("Caricamento pagina del corso", end="", flush=True)
     driver.get("{}&maxResults={}".format(url, num_videos))
     try:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
         n_div = 6
     except Exception:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
         n_div = 5
     print(" [ok]")
     
@@ -158,7 +158,7 @@ def get_lesson_links(driver, num_videos, url):
 def get_links_video(driver, list_videos):
     output_file = open("output.sh", "w")
     error_url = open("error_url", "w")
-    output_file.write("mkdir -p panopto-download;cd panopto-download\n")
+    output_file.write("mkdir -p Videolezioni;cd Videolezioni\n")
     for video_url in list_videos:
         #-- prendo gli stream audio/video
         output, error = get_video_stream(video_url, driver)
