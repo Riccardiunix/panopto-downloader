@@ -1,4 +1,10 @@
 #!/bin/bash
+# Controllo che il file che sto andando a scaricare non sia un file di flusso
+if [[ "$3" != "webcam.mp4" ]] || [[ "$3" != "screen.mp4" ]] && test -f "$3"; then
+    echo "    '$3' file gia' scaricato"
+	exit 1
+fi
+
 if [[ "$1" == */ ]]; then # se termina per / e' un flusso .ts
     echo "Downloading '$2'"
     #-- Creo la cartella di lavoro e poi mi sposto dentro

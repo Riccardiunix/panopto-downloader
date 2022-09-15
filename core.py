@@ -9,10 +9,6 @@ def get_driver():
     print("Login",end="", flush=True)
     options = Options()
     options.add_argument('--headless')
-    #options.add_argument('--no-sandbox')
-    #options.add_argument('--ignore-certificate-errors-spki-list')
-    #options.add_argument('--ignore-ssl-errors')
-    #options.ignore_http_methods = [] # Capture all requests, including OPTIONS requests
     options.page_load_strategy = 'eager' # non aspetto che venga caricata tutta la pagina ma solo che diventi iterativa (DOM caricato)
     options.set_preference("media.volume_scale", "0.0") # muto l'audio
 
@@ -45,18 +41,18 @@ def get_driver():
 def get_video_stream(video_url, driver):
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
     try:
-        driver.get(video_url)
         print("\nEsaminando: {}".format(video_url))
+        driver.get(video_url)
     except:
-        return ([], '')
+        return ('', video_url)
     
     #-- Aspetto che la pagina carichi
     time.sleep(2)
     try:
-        WebDriverWait(driver, 15).until( EC.presence_of_element_located(("id", "playButton")) )
+        WebDriverWait(driver, 20).until( EC.presence_of_element_located(("id", "playButton")) )
         idPlay = "playButton"
     except Exception:
-        WebDriverWait(driver, 15).until( EC.presence_of_element_located(("id", "playIcon")) )
+        WebDriverWait(driver, 10).until( EC.presence_of_element_located(("id", "playIcon")) )
         idPlay = "playIcon"
     
     #-- Ultimo stream prima del nuovo video
@@ -95,33 +91,34 @@ def get_video_stream(video_url, driver):
             driver.find_element("id", "detailsTabHeader").click()
             lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
     print("Nome Lezione: {}".format(lec_name))
-
+    
+    time.sleep(3)
+    
     #-- Se ho poche request aspetto
-    if len(driver.requests) < 2: # se ho acquisito poche richieste aspetto ancora
+    if len(driver.requests) < 5: # se ho acquisito poche richieste aspetto ancora
         time.sleep(5)
-
-    #-- Lascio riprodurre il video e poi lo fermo
-    if flagPlay and idPlay != "playIcon":
-        time.sleep(2)
-        playButton.click()
-
+        
     #-- Prendo i link dello streaming video
     list_urls = []
     prev_len_url = 0
-    for request in driver.iter_requests():
-        url = request.url
-        len_url = len(url)
-        if request.response and request.response.headers['Content-Type'] in ('video/mp4', 'video/MP2T') and prev_len_url != len_url: # le URL degli stream devono avere lunghezza diversa
-            if request.response.headers['Content-Type'] == "video/MP2T":
-                url = url[0:-8]
-            list_urls.append(url)
-            if prev_len_url != 0: # se ho gia' due stream (screen e webcam) mi fermo
-                if len_url > prev_len_url:
-                    list_urls = [list_urls[1], list_urls[0]]
-                break
-            prev_len_url = len_url
-
-    len_set = len(list_urls)
+    for i in range(0,3):
+        for request in driver.iter_requests():
+            url = request.url
+            len_url = len(url)
+            if request.response and request.response.headers['Content-Type'] in ('video/mp4', 'video/MP2T') and prev_len_url != len_url: # le URL degli stream devono avere lunghezza diversa
+                if request.response.headers['Content-Type'] == "video/MP2T":
+                    url = url[0:-8]
+                list_urls.append(url)
+                if prev_len_url != 0: # se ho gia' due stream (screen e webcam) mi fermo
+                    if len_url > prev_len_url:
+                        list_urls = [list_urls[1], list_urls[0]]
+                    break
+                prev_len_url = len_url
+        len_set = len(list_urls)
+        if len_set == 2 or (len_set == 1 and i == 1):
+            break
+        time.sleep(1)
+    
     output = ''
     error = ''
     if len_set == 1:
@@ -135,7 +132,18 @@ def get_video_stream(video_url, driver):
         error = '{} {}\n'.format(video_url, lec_name)
     return (output, error)
 
-def get_lesson_links(driver, num_videos, n_div):
+def get_lesson_links(driver, num_videos, url):
+    #-- Accedo alla pagina e aspetto il suo caricamento
+    print("Caricamento pagina del corso", end="", flush=True)
+    driver.get("{}&maxResults={}".format(url, num_videos))
+    try:
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]")))
+        n_div = 6
+    except Exception:
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]")))
+        n_div = 5
+    print(" [ok]")
+    
     print("Raccolta link delle lezioni", end="", flush=True)
     list_videos = []
     try:
@@ -150,6 +158,7 @@ def get_lesson_links(driver, num_videos, n_div):
 def get_links_video(driver, list_videos):
     output_file = open("output.sh", "w")
     error_url = open("error_url", "w")
+    output_file.write("mkdir -p panopto-download;cd panopto-download\n")
     for video_url in list_videos:
         #-- prendo gli stream audio/video
         output, error = get_video_stream(video_url, driver)

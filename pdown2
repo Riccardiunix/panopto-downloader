@@ -1,5 +1,10 @@
 #!/bin/bash
 # Scarico due flussi video e audio e poi li unisco
+if test -f "$3"; then
+    echo "    '$3' file gia' scaricato"
+	exit 1
+fi
+
 echo "    Downloading '$3'"
 
 #-- Creo la cartella di lavoro e poi mi sposto dentro
