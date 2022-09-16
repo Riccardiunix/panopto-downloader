@@ -15,15 +15,22 @@
 
 **Sistema Operativi**:
 
-- Arch: `sudo pacman -S firefox geckodriver python wget ffmpeg parallel --needed`
-- Parabola: `sudo pacman -S iceweasel geckodriver python wget ffmpeg parallel --needed`
-- Fedora: `sudo dnf install firefox cargo python wget ffmpeg parallel; cargo install geckodriver`
+- Arch: `sudo pacman -S firefox geckodriver python python-pip wget ffmpeg parallel --needed`
+- Parabola: `sudo pacman -S iceweasel geckodriver python python-pip wget ffmpeg parallel --needed`
+- Fedora: `sudo dnf install firefox python python-pip wget ffmpeg parallel`
+- Linux Mint: `sudo apt install firefox python-is-python3 python3-pip wget ffmpeg parallel`
 
 **Python**: `pip install selenium selenium-wire`
 
-Sistemi operativi come Fedora che non hanno `geckodriver` nel loro repository possono usare `cargo` per installarlo (compilarlo, su sistemi lenti questo richiedo tempo):
+### Geckodriver
+
+Sistemi operativi come Fedora e Linux Mint che non hanno `geckodriver` nel loro repository possono usare `cargo` per installarlo (compilarlo):
 
 	sudo cargo install geckodriver --root /usr/local
+
+Oppure è sufficente scaricarlo da [GitHub](https://github.com/mozilla/geckodriver/releases) e copiare l'eseguibile in una cartella di $PATH (`/usr/local/bin`), ho creato questo script per fare questo in autonomia:
+    
+    ./install-geckodriver.sh
 
 ## Installazione
 Per installare gli script si può usare il seguente comando.

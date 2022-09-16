@@ -158,7 +158,7 @@ def get_lesson_links(driver, num_videos, url):
 def get_links_video(driver, list_videos):
     output_file = open("output.sh", "w")
     error_url = open("error_url", "w")
-    output_file.write("mkdir -p Videolezioni;cd Videolezioni\n")
+    output_file.write('mkdir -p Videolezioni;cd Videolezioni;export PATH="$HOME/.local/bin:$PATH"\n')
     for video_url in list_videos:
         #-- prendo gli stream audio/video
         output, error = get_video_stream(video_url, driver)
