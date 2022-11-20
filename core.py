@@ -58,6 +58,8 @@ def get_video_stream(video_url, driver):
     #-- Ultimo stream prima del nuovo video
     del driver.requests
     
+    time.sleep(1)
+
     try:
         #-- Riproduco il video un secondo per avere gli steam
         playButton = driver.find_element("id", idPlay)
@@ -65,10 +67,11 @@ def get_video_stream(video_url, driver):
         flagPlay = True
     except Exception:
         falgPlay = False
-
+    
     try:
-        #-- Premere sulla prima slide del tooltip
-        driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/main/div/ol/li[1]/img").click()
+        #-- Premere sulle slide del tooltip
+        driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/main/div/ol/li[2]/img").click()
+        time.sleep(1)
     except Exception:
         try:
             #-- Sposto avanti la barra di caricamente cosi' che appaino tutti gli eventuali stream
@@ -91,8 +94,8 @@ def get_video_stream(video_url, driver):
             driver.find_element("id", "detailsTabHeader").click()
             lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
     print("Nome Lezione: {}".format(lec_name))
-    
-    time.sleep(3)
+   
+    time.sleep(4)
     
     #-- Se ho poche request aspetto
     if len(driver.requests) < 5: # se ho acquisito poche richieste aspetto ancora
@@ -101,7 +104,7 @@ def get_video_stream(video_url, driver):
     #-- Prendo i link dello streaming video
     list_urls = []
     prev_len_url = 0
-    for i in range(0,3):
+    for i in range(0,5):
         for request in driver.iter_requests():
             url = request.url
             len_url = len(url)
@@ -115,9 +118,9 @@ def get_video_stream(video_url, driver):
                     break
                 prev_len_url = len_url
         len_set = len(list_urls)
-        if len_set == 2 or (len_set == 1 and i == 1):
+        if len_set == 2:
             break
-        time.sleep(1)
+        time.sleep(2)
     
     output = ''
     error = ''
