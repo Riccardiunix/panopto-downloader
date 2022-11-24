@@ -1,9 +1,11 @@
 import time
 import pickle
+import subprocess
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 
 def get_driver():
     print("Login",end="", flush=True)
@@ -38,6 +40,11 @@ def get_driver():
     print(" [ok]")
     return driver
 
+def has_audio(filename):
+    cmd = "curl --silent {} | ffprobe -v error -show_entries format=nb_streams -of default=noprint_wrappers=1:nokey=1 pipe:0".format(filename)
+    result = subprocess.run(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    return (int(result.stdout)-1)
+
 def get_video_stream(video_url, driver):
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
     try:
@@ -57,7 +64,7 @@ def get_video_stream(video_url, driver):
     
     #-- Ultimo stream prima del nuovo video
     del driver.requests
-    
+
     time.sleep(1)
 
     try:
@@ -71,7 +78,6 @@ def get_video_stream(video_url, driver):
     try:
         #-- Premere sulle slide del tooltip
         driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/main/div/ol/li[2]/img").click()
-        time.sleep(1)
     except Exception:
         try:
             #-- Sposto avanti la barra di caricamente cosi' che appaino tutti gli eventuali stream
@@ -80,8 +86,7 @@ def get_video_stream(video_url, driver):
             action.move_to_element_with_offset(bar, 5, 6)
             action.click().perform()
         except Exception:
-            #-- Lascio riprodurre il video più allungo
-            time.sleep(5)
+            pass
 
     #-- Prendo il nome della lezione
     if idPlay == "playIcon":
@@ -89,22 +94,15 @@ def get_video_stream(video_url, driver):
         driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[1]/div[3]/i").click()
         lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[2]/div[3]/div/div[1]").text
     else:
-        lec_name = driver.find_element("id", "deliveryTitle").text
-        if lec_name == '':
-            driver.find_element("id", "detailsTabHeader").click()
-            lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
+        driver.find_element("id", "detailsTabHeader").click()
+        lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
     print("Nome Lezione: {}".format(lec_name))
    
-    time.sleep(4)
-    
-    #-- Se ho poche request aspetto
-    if len(driver.requests) < 5: # se ho acquisito poche richieste aspetto ancora
-        time.sleep(5)
-        
     #-- Prendo i link dello streaming video
     list_urls = []
     prev_len_url = 0
-    for i in range(0,5):
+    flag = True # flag per il controllo di un solo flusso trovato, eseguo il controllo solo una volta
+    for i in range(15):
         for request in driver.iter_requests():
             url = request.url
             len_url = len(url)
@@ -120,6 +118,11 @@ def get_video_stream(video_url, driver):
         len_set = len(list_urls)
         if len_set == 2:
             break
+        elif flag and len_set == 1:
+            test_url = list_urls[0] if list_urls[0][-1] != '/' else list_urls[0]+'00100.ts'
+            if has_audio("'"+test_url+"'"):
+                break
+            flag = False
         time.sleep(2)
     
     output = ''
@@ -138,12 +141,20 @@ def get_video_stream(video_url, driver):
 def get_lesson_links(driver, num_videos, url):
     #-- Accedo alla pagina e aspetto il suo caricamento
     print("Caricamento pagina del corso", end="", flush=True)
+
     driver.get("{}&maxResults={}".format(url, num_videos))
+    
+    #-- Accetto i 
     try:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
+        driver.find_element("id", "PageContentPlaceholder_loginControl_externalLoginButton").click()
+    except Exception as e:
+        pass
+
+    try:
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
         n_div = 6
     except Exception:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
         n_div = 5
     print(" [ok]")
     

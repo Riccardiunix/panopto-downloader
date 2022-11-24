@@ -15,10 +15,10 @@
 
 **Sistema Operativi**:
 
-- Arch: `sudo pacman -S firefox geckodriver python python-pip wget ffmpeg parallel --needed`
-- Parabola: `sudo pacman -S iceweasel geckodriver python python-pip wget ffmpeg parallel --needed`
-- Fedora: `sudo dnf install firefox python python-pip wget ffmpeg parallel`
-- Linux Mint: `sudo apt install firefox python-is-python3 python3-pip wget ffmpeg parallel`
+- Arch: `sudo pacman -S firefox geckodriver python python-pip wget ffmpeg parallel curl --needed`
+- Parabola: `sudo pacman -S iceweasel geckodriver python python-pip wget ffmpeg parallel curl --needed`
+- Fedora: `sudo dnf install firefox python python-pip wget ffmpeg parallel curl`
+- Linux Mint: `sudo apt install firefox python-is-python3 python3-pip wget ffmpeg parallel curl`
 
 **Python**: `pip install selenium selenium-wire`
 
