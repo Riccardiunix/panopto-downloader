@@ -41,8 +41,11 @@ def get_driver():
 
 def has_audio(filename):
     cmd = "curl --silent {} | ffprobe -v error -show_entries format=nb_streams -of default=noprint_wrappers=1:nokey=1 pipe:0".format(filename)
-    result = subprocess.run(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-    return (int(result.stdout)-1)
+    try:
+        result = subprocess.run(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        return (int(result.stdout[-1])-1)
+    except:
+        return(0)
 
 def get_video_stream(video_url, driver):
     #-- Carico il nuovo video (in caso di timeout procedo con il prossimo)
