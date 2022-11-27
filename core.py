@@ -13,7 +13,6 @@ def get_driver():
     options.add_argument('--headless')
     options.page_load_strategy = 'eager' # non aspetto che venga caricata tutta la pagina ma solo che diventi iterativa (DOM caricato)
     options.set_preference("media.volume_scale", "0.0") # muto l'audio
-
     driver = webdriver.Firefox(options=options)
 
     try:
@@ -52,7 +51,10 @@ def get_video_stream(video_url, driver):
         driver.get(video_url)
     except:
         return ('', video_url)
-    
+     
+    #-- Ultimo stream prima del nuovo video
+    del driver.requests
+   
     #-- Aspetto che la pagina carichi
     time.sleep(2)
     try:
@@ -62,9 +64,6 @@ def get_video_stream(video_url, driver):
         WebDriverWait(driver, 10).until( EC.presence_of_element_located(("id", "playIcon")) )
         idPlay = "playIcon"
     
-    #-- Ultimo stream prima del nuovo video
-    del driver.requests
-
     time.sleep(1)
 
     try:
@@ -102,7 +101,7 @@ def get_video_stream(video_url, driver):
     list_urls = []
     prev_len_url = 0
     flag = True # flag per il controllo di un solo flusso trovato, eseguo il controllo solo una volta
-    for i in range(15):
+    for i in range(30):
         for request in driver.iter_requests():
             url = request.url
             len_url = len(url)
@@ -115,12 +114,20 @@ def get_video_stream(video_url, driver):
                         list_urls = [list_urls[1], list_urls[0]]
                     break
                 prev_len_url = len_url
+            elif not request.response and prev_len_url != len_url and '.mp4' in url:
+                list_urls.append(url)
+                if prev_len_url != 0: # se ho gia' due stream (screen e webcam) mi fermo
+                    if len_url > prev_len_url:
+                        list_urls = [list_urls[1], list_urls[0]]
+                    break
+                prev_len_url = len_url
+                
         len_set = len(list_urls)
         if len_set == 2:
             break
         elif flag and len_set == 1:
-            test_url = list_urls[0] if list_urls[0][-1] != '/' else list_urls[0]+'00100.ts'
-            if has_audio("'"+test_url+"'"):
+            test_url = "'"+list_urls[0]+"'" if list_urls[0][-1] != '/' else "'"+list_urls[0]+"00100.ts'"
+            if has_audio(test_url):
                 break
             flag = False
         time.sleep(2)
@@ -128,11 +135,14 @@ def get_video_stream(video_url, driver):
     output = ''
     error = ''
     if len_set == 1:
-        print("1 flusso trovato [ok]")
-        output = 'pdown {} "{}.mp4"\n'.format(list_urls[0], lec_name)
+        if flag:
+            print("1 schermata trovata [ok]")
+        else: 
+            print("1 schermata trovata [-]")
+        output = 'pdown "{}" "{}.mp4"\n'.format(list_urls[0], lec_name)
     elif len_set == 2:
-        print("2 flussi trovati [ok]")
-        output = 'pdown2 {} {} "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
+        print("2 schermate trovate [ok]")
+        output = 'pdown2 "{}" "{}" "{}.mp4"\n'.format(list_urls[0], list_urls[1], lec_name)
     else:
         print("{} flussi trovati [x]".format(len_set))
         error = '{} {}\n'.format(video_url, lec_name)
