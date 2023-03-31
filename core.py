@@ -26,6 +26,7 @@ def get_driver():
         try:
             login = open("login", "r")
         except Exception:
+            print(" [ko]")
             print("Create un file 'login' con all'interno su una riga l'ID e su un'altra la password del vostro account")
             exit(1)
         driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Auth/Login.aspx?instance=AAP-Univr")
@@ -59,15 +60,15 @@ def get_video_stream(video_url, driver):
     del driver.requests
    
     #-- Aspetto che la pagina carichi
-    time.sleep(2)
+    time.sleep(5)
     try:
         WebDriverWait(driver, 20).until( EC.presence_of_element_located(("id", "playButton")) )
         idPlay = "playButton"
     except Exception:
-        WebDriverWait(driver, 10).until( EC.presence_of_element_located(("id", "playIcon")) )
+        WebDriverWait(driver, 15).until( EC.presence_of_element_located(("id", "playIcon")) )
         idPlay = "playIcon"
-    
-    time.sleep(1)
+
+    time.sleep(2)
 
     try:
         #-- Riproduco il video un secondo per avere gli steam
@@ -96,8 +97,14 @@ def get_video_stream(video_url, driver):
         driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[1]/div[3]/i").click()
         lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[2]/div[3]/div/div[1]").text
     else:
-        driver.find_element("id", "detailsTabHeader").click()
-        lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
+        try:
+            driver.find_element("id", "detailsTabHeader").click()
+            lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
+        except Exception:
+            print("in exception")
+            driver.find_element("xpath", '//*[@id="detailsTabHeader"]').click()
+            lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
+    lec_name = lec_name.replace("/","-")
     print("Nome Lezione: {}".format(lec_name))
    
     #-- Prendo i link dello streaming video
@@ -164,10 +171,10 @@ def get_lesson_links(driver, num_videos, url):
         pass
 
     try:
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/div[1]/a")))
         n_div = 6
     except Exception:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/a")))
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/div[1]/a")))
         n_div = 5
     print(" [ok]")
     
@@ -175,7 +182,7 @@ def get_lesson_links(driver, num_videos, url):
     list_videos = []
     try:
         for video_id in range(1, num_videos):
-            video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[{}]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/a".format(n_div, video_id))
+            video_url = driver.find_element("xpath", "/html/body/form/div[3]/div[{}]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{}]/td[2]/div/div[1]/a".format(n_div, video_id))
             list_videos.append(video_url.get_attribute('href'))
     except:
         pass
