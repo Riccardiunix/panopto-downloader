@@ -97,13 +97,8 @@ def get_video_stream(video_url, driver):
         driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[1]/div[3]/i").click()
         lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[2]/div[3]/div/div[1]").text
     else:
-        try:
-            driver.find_element("id", "detailsTabHeader").click()
-            lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
-        except Exception:
-            print("in exception")
-            driver.find_element("xpath", '//*[@id="detailsTabHeader"]').click()
-            lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
+        driver.find_element("id", "detailsTabHeader").click()
+        lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
     lec_name = lec_name.replace("/","-")
     print("Nome Lezione: {}".format(lec_name))
    
