@@ -100,6 +100,7 @@ def get_video_stream(video_url, driver):
         driver.find_element("id", "detailsTabHeader").click()
         lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
     lec_name = lec_name.replace("/","-")
+    lec_name = lec_name.replace(":","")
     print("Nome Lezione: {}".format(lec_name))
    
     #-- Prendo i link dello streaming video
