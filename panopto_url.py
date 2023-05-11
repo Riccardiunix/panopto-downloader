@@ -8,7 +8,10 @@ if len(sys.argv) == 1:
 #-- Login
 driver = core.get_driver()
 
-#-- Analizzo i link delle lezione per estrarre gli stream
-core.get_links_video(driver, sys.argv[1:])
-
-driver.quit()
+try:
+    #-- Analizzo i link delle lezione per estrarre gli stream
+    core.get_links_video(driver, sys.argv[1:])
+except Exception as e:
+    print(e)
+finally:
+    driver.quit()
