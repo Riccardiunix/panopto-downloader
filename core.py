@@ -3,6 +3,7 @@ import pickle
 import subprocess
 from seleniumwire import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -33,7 +34,7 @@ def get_driver():
         WebDriverWait(driver, 30).until( EC.presence_of_element_located( ("id", "form_username")) )
         driver.find_element("id", "form_username").send_keys(login.readline())
         driver.find_element("id", "form_password").send_keys(login.readline())
-        driver.find_element("xpath", "/html/body/div[1]/div/div/div/div/div[1]/div[1]/form/div[3]/button").click()
+        driver.find_element(By.CSS_SELECTOR, ".btn").click()
         time.sleep(1)
         #-- Salvo i cookie
         pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
@@ -80,7 +81,7 @@ def get_video_stream(video_url, driver):
 
     try:
         #-- Premere sulle slide del tooltip
-        driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/main/div/ol/li[2]/img").click()
+        driver.find_element(By.CSS_SELECTOR, "#thumbnail9thumbnailList > img:nth-child(2)").click()
     except:
         try:
             #-- Sposto avanti la barra di caricamente cosi' che appaino tutti gli eventuali stream
@@ -93,14 +94,13 @@ def get_video_stream(video_url, driver):
 
     #-- Prendo il nome della lezione
     if idPlay == "playIcon":
-        driver.find_element("xpath", "/html/body/form/div[3]/div[10]/div[4]/div").click()
-        driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[1]/div[3]/i").click()
-        lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div/div/div[2]/div[3]/div/div[1]").text
+        driver.find_element(By.CSS_SELECTOR, ".arrow").click()
+        driver.find_element("id", "infoTab").click()
+        lec_name = driver.find_element(By.CSS_SELECTOR, ".information-title").text
     else:
         driver.find_element("id", "detailsTabHeader").click()
-        lec_name = driver.find_element("xpath", "/html/body/form/div[3]/div[9]/div[8]/div/aside/div[2]/div[2]/div[2]/div[3]/div[1]").text
-    lec_name = lec_name.replace("/","-")
-    lec_name = lec_name.replace(":","")
+        lec_name = driver.find_element(By.CSS_SELECTOR, ".name").text
+    lec_name = lec_name.replace("/","-").replace(":","")
     print(f"Nome Lezione: {lec_name}")
 
     #-- Prendo i link dello streaming video
@@ -160,30 +160,22 @@ def get_lesson_links(driver, num_videos, url):
 
     driver.get(f"{url}&maxResults={num_videos}")
 
-    #-- Accetto i
+    #-- Accetto
     try:
         driver.find_element("id", "PageContentPlaceholder_loginControl_externalLoginButton").click()
     except:
         pass
-
-    try:
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[6]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/div[1]")))
-        n_div = 6
-    except:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located(("xpath","/html/body/form/div[3]/div[5]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[1]/td[2]/div/div[1]")))
-        n_div = 5
     print(" [ok]")
 
     print("Raccolta link delle lezioni", end="", flush=True)
-    list_videos = []
-    try:
-        for video_id in range(1, num_videos):
-            video_url = driver.find_element("xpath", f"/html/body/form/div[3]/div[{n_div}]/div/div[1]/div[4]/div[1]/table[2]/tbody/tr[{video_id}]/td[3]/div[2]/a")
-            list_videos.append(video_url.get_attribute('href'))
-    except:
-        pass
+    WebDriverWait(driver, 15).until(EC.presence_of_element_located(("id", "detailsTable")))
+    time.sleep(3)
+
     print(" [ok]")
-    return list_videos
+    
+    return set( x.get_attribute('href') for x in driver.find_element("id", "detailsTable").find_elements("xpath", "//a[contains(@href,'Viewer')]") )
+
+    #return list_videos
 
 def get_links_video(driver, list_videos):
     output_file = open("output.sh", "w")
