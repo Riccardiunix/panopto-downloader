@@ -19,9 +19,11 @@ def get_driver():
     try:
         #-- Login (Cookies)
         cookies = pickle.load(open('cookies.pkl', 'rb'))
-        driver.get('https://univr.cloud.panopto.eu')
+        driver.get('https://aap.univr.it/')
         for cookie in cookies:
             driver.add_cookie(cookie)
+        driver.get("https://univr.cloud.panopto.eu/Panopto/Pages/Auth/Login.aspx?instance=AAP-Univr")
+        WebDriverWait(driver, 10).until( EC.presence_of_element_located( ("id", "headerSearch")) )
     except:
         #-- Login (Username + Pass)
         try:
@@ -38,6 +40,7 @@ def get_driver():
         time.sleep(1)
         #-- Salvo i cookie
         pickle.dump(driver.get_cookies(), open("cookies.pkl","wb"))
+        WebDriverWait(driver, 10).until( EC.presence_of_element_located( ("id", "headerSearch")) )
     print(" [ok]")
     return driver
 
@@ -75,9 +78,8 @@ def get_video_stream(video_url, driver):
         #-- Riproduco il video un secondo per avere gli steam
         playButton = driver.find_element("id", idPlay)
         playButton.click()
-        flagPlay = True
     except:
-        falgPlay = False
+        pass
 
     try:
         #-- Premere sulle slide del tooltip
@@ -106,8 +108,9 @@ def get_video_stream(video_url, driver):
     #-- Prendo i link dello streaming video
     list_urls = []
     prev_len_url = 0
+    len_set = 0
     flag = True # flag per il controllo di un solo flusso trovato, eseguo il controllo solo una volta
-    for i in range(30):
+    for _ in range(30):
         for request in driver.iter_requests():
             url = request.url
             len_url = len(url)
@@ -168,14 +171,12 @@ def get_lesson_links(driver, num_videos, url):
     print(" [ok]")
 
     print("Raccolta link delle lezioni", end="", flush=True)
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located(("id", "detailsTable")))
+    WebDriverWait(driver, 15).until(EC.presence_of_element_located(("id", "listViewContainer")))
     time.sleep(3)
 
     print(" [ok]")
-    
-    return set( x.get_attribute('href') for x in driver.find_element("id", "detailsTable").find_elements("xpath", "//a[contains(@href,'Viewer')]") )
 
-    #return list_videos
+    return set( x.get_attribute('href') for x in driver.find_element("id", "listViewContainer").find_elements("xpath", "//a[contains(@href,'Viewer')]") )
 
 def get_links_video(driver, list_videos):
     output_file = open("output.sh", "w")
